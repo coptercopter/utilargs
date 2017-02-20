@@ -40,7 +40,7 @@ public abstract class AbstractFunctionalTest {
         if (expectedEntry.length > 1) {
             expectedOperands = expectedEntry[1];
         }
-        Set<String> modifiedFields = new HashSet<String>();
+        Set<String> modifiedFields = new HashSet<>();
 
         // when
         UtilArgs ua = new UtilArgs(commandLineArguments.split(" "), wrapper);

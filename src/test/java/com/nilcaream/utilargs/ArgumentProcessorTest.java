@@ -16,7 +16,6 @@
 
 package com.nilcaream.utilargs;
 
-import com.nilcaream.utilargs.core.ArgumentBinder;
 import com.nilcaream.utilargs.model.Option;
 import com.nilcaream.utilargs.model.Parameter;
 import org.junit.Before;
@@ -39,7 +38,7 @@ public class ArgumentProcessorTest {
     @Before
     public void setUp() {
         argumentProcessor = new ArgumentProcessor();
-        argumentProcessor.setBinders(new ArrayList<ArgumentBinder>());
+        argumentProcessor.setBinders(new ArrayList<>());
     }
 
     @Test

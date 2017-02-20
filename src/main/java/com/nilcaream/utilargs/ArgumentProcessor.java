@@ -35,8 +35,8 @@ public class ArgumentProcessor {
     private String[] arguments;
     private Object wrapper;
 
-    private Map<Character, Parameter> optionNameToParameter = new HashMap<Character, Parameter>();
-    private List<ArgumentBinder> binders = new ArrayList<ArgumentBinder>();
+    private Map<Character, Parameter> optionNameToParameter = new HashMap<>();
+    private List<ArgumentBinder> binders = new ArrayList<>();
     private int operandsIndex;
 
     public ArgumentProcessor() {
@@ -211,7 +211,7 @@ public class ArgumentProcessor {
      * @return not-null list sorted by an option name.
      */
     public List<Parameter> getDeclaredParameters() {
-        List<Parameter> parameters = new ArrayList<Parameter>();
+        List<Parameter> parameters = new ArrayList<>();
         parameters.addAll(optionNameToParameter.values());
         Collections.sort(parameters);
         return parameters;
@@ -223,7 +223,7 @@ public class ArgumentProcessor {
      * @return not-null list sorted by an option name.
      */
     public final List<Parameter> getParameters() {
-        List<Parameter> parameters = new ArrayList<Parameter>();
+        List<Parameter> parameters = new ArrayList<>();
         for (Parameter parameter : optionNameToParameter.values()) {
             if (parameter.getArgument() != null) {
                 parameters.add(parameter);

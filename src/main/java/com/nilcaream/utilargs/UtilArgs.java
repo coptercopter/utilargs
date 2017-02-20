@@ -40,6 +40,21 @@ public class UtilArgs {
      * Resolves given arguments and updates user-provided object fields. The object fields should be
      * annotated with {@link com.nilcaream.utilargs.model.Option} annotation. They don't have to be public.
      * <p/>
+     * This method will never throw an exception when field binding process fails.
+     * <p/>
+     * Calling this method is equivalent to calling constructor {@link UtilArgs#UtilArgs(String[], Object)}
+     *
+     * @param arguments command line arguments
+     * @param wrapper   user-provided arguments wrapper
+     */
+    public static void process(String[] arguments, Object wrapper) {
+        new UtilArgs(arguments, wrapper);
+    }
+
+    /**
+     * Resolves given arguments and updates user-provided object fields. The object fields should be
+     * annotated with {@link com.nilcaream.utilargs.model.Option} annotation. They don't have to be public.
+     * <p/>
      * This constructor will never throw an exception when field binding process fails.
      *
      * @param arguments command line arguments
