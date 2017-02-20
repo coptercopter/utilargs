@@ -31,6 +31,7 @@ import static org.fest.assertions.Assertions.assertThat;
  * <p/>
  * Krzysztof Smigielski 10/28/12 8:32 PM
  */
+@SuppressWarnings("Duplicates")
 public class ArgumentProcessorTest {
 
     private ArgumentProcessor argumentProcessor;
@@ -68,15 +69,17 @@ public class ArgumentProcessorTest {
         List<Parameter> parameters = argumentProcessor.getDeclaredParameters();
 
         // then
-        assertThat(parameters).hasSize(8);
+        assertThat(parameters).hasSize(10);
         assertParameterState(parameters.get(0), 'a', null);
         assertParameterState(parameters.get(1), 'c', null);
-        assertParameterState(parameters.get(2), 'n', null);
-        assertParameterState(parameters.get(3), 'o', null);
-        assertParameterState(parameters.get(4), 't', null);
-        assertParameterState(parameters.get(5), 'v', null);
-        assertParameterState(parameters.get(6), 'y', null);
-        assertParameterState(parameters.get(7), 'z', null);
+        assertParameterState(parameters.get(2), "city", null);
+        assertParameterState(parameters.get(3), 'n', null);
+        assertParameterState(parameters.get(4), "name", null);
+        assertParameterState(parameters.get(5), 'o', null);
+        assertParameterState(parameters.get(6), 't', null);
+        assertParameterState(parameters.get(7), 'v', null);
+        assertParameterState(parameters.get(8), 'y', null);
+        assertParameterState(parameters.get(9), 'z', null);
     }
 
     @Test
@@ -90,10 +93,9 @@ public class ArgumentProcessorTest {
         List<Parameter> parameters = argumentProcessor.getParameters();
 
         // then
-        assertThat(parameters).hasSize(3);
+        assertThat(parameters).hasSize(2);
         assertParameterState(parameters.get(0), 'c', "1");
-        assertParameterState(parameters.get(1), 'o', "");
-        assertParameterState(parameters.get(2), 'z', "4");
+        assertParameterState(parameters.get(1), 'o', "-z");
     }
 
     @Test
@@ -131,6 +133,23 @@ public class ArgumentProcessorTest {
     }
 
     @Test
+    public void negativeNumbersWithLongName() throws Exception {
+        // given
+        TestObject testObject = new TestObject();
+        String[] args = "--city -1 -o -2b -z -0.04 -q 2".split(" ");
+        argumentProcessor.initialize(args, testObject);
+
+        // when
+        List<Parameter> parameters = argumentProcessor.getParameters();
+
+        // then
+        assertThat(parameters).hasSize(3);
+        assertParameterState(parameters.get(0), "city", "-1");
+        assertParameterState(parameters.get(1), 'o', "-2b");
+        assertParameterState(parameters.get(2), 'z', "-0.04");
+    }
+
+    @Test
     public void singleString() throws Exception {
         // given
         TestObject testObject = new TestObject();
@@ -159,6 +178,57 @@ public class ArgumentProcessorTest {
         assertThat(parameters).hasSize(2);
         assertParameterState(parameters.get(0), 'n', "test");
         assertParameterState(parameters.get(1), 'o', "123");
+    }
+
+    @Test
+    public void twoArgumentsWithLongNames() throws Exception {
+        // given
+        TestObject testObject = new TestObject();
+        String[] args = "-o 123 --name test".split(" ");
+
+        // when
+        argumentProcessor.initialize(args, testObject);
+        List<Parameter> parameters = argumentProcessor.getParameters();
+
+        // then
+        assertThat(parameters).hasSize(2);
+        assertParameterState(parameters.get(0), "name", "test");
+        assertParameterState(parameters.get(1), 'o', "123");
+    }
+
+    @Test
+    public void shouldProcessLongAndShortArgumentNames() throws Exception {
+        // given
+        TestObject testObject = new TestObject();
+        String[] args = "--invalid no -o 123 --name test -c 321".split(" ");
+
+        // when
+        argumentProcessor.initialize(args, testObject);
+        List<Parameter> parameters = argumentProcessor.getParameters();
+
+        // then
+        assertThat(parameters).hasSize(3);
+        assertParameterState(parameters.get(0), 'c', "321");
+        assertParameterState(parameters.get(1), "name", "test");
+        assertParameterState(parameters.get(2), 'o', "123");
+    }
+
+    @Test
+    public void shouldAcceptLastFoundArgument() throws Exception {
+        // given
+        TestObject testObject = new TestObject();
+        String[] args = "-c ccc111 --city ccc222 --name nnn111 -n nnn222".split(" ");
+
+        // when
+        argumentProcessor.initialize(args, testObject);
+        List<Parameter> parameters = argumentProcessor.getParameters();
+
+        // then
+        assertThat(parameters).hasSize(2);
+        assertParameterState(parameters.get(0), 'c', "ccc222");
+        assertParameterState(parameters.get(0), "city", "ccc222");
+        assertParameterState(parameters.get(1), 'n', "nnn222");
+        assertParameterState(parameters.get(1), "name", "nnn222");
     }
 
     @Test
@@ -273,7 +343,7 @@ public class ArgumentProcessorTest {
     }
 
     @Test
-    public void firstValueNotSet() throws Exception {
+    public void shouldSetInvalidArgumentForFirstParameterWithMissingValue() throws Exception {
         // given
         TestObject testObject = new TestObject();
         String[] args = "-o -n name".split(" ");
@@ -283,13 +353,12 @@ public class ArgumentProcessorTest {
         List<Parameter> parameters = argumentProcessor.getParameters();
 
         // then
-        assertThat(parameters).hasSize(2);
-        assertParameterState(parameters.get(0), 'n', "name");
-        assertParameterState(parameters.get(1), 'o', "");
+        assertThat(parameters).hasSize(1);
+        assertParameterState(parameters.get(0), 'o', "-n");
     }
 
     @Test
-    public void middleValueNotSet() throws Exception {
+    public void shouldSetInvalidArgumentForMiddleParameterWithMissingValue() throws Exception {
         // given
         TestObject testObject = new TestObject();
         String[] args = "-c city -o -n name".split(" ");
@@ -299,14 +368,13 @@ public class ArgumentProcessorTest {
         List<Parameter> parameters = argumentProcessor.getParameters();
 
         // then
-        assertThat(parameters).hasSize(3);
+        assertThat(parameters).hasSize(2);
         assertParameterState(parameters.get(0), 'c', "city");
-        assertParameterState(parameters.get(1), 'n', "name");
-        assertParameterState(parameters.get(2), 'o', "");
+        assertParameterState(parameters.get(1), 'o', "-n");
     }
 
     @Test
-    public void allValuesNotSet() throws Exception {
+    public void shouldSetInvalidArgumentsForAllParameterWithMissingValue() throws Exception {
         // given
         TestObject testObject = new TestObject();
         String[] args = "-c -o -n".split(" ");
@@ -316,10 +384,9 @@ public class ArgumentProcessorTest {
         List<Parameter> parameters = argumentProcessor.getParameters();
 
         // then
-        assertThat(parameters).hasSize(3);
-        assertParameterState(parameters.get(0), 'c', "");
+        assertThat(parameters).hasSize(2);
+        assertParameterState(parameters.get(0), 'c', "-o");
         assertParameterState(parameters.get(1), 'n', "");
-        assertParameterState(parameters.get(2), 'o', "");
     }
 
     @Test
@@ -479,11 +546,16 @@ public class ArgumentProcessorTest {
         assertThat(parameter.getArgument()).isEqualTo(argument);
     }
 
+    private void assertParameterState(Parameter parameter, String option, String argument) {
+        assertThat(parameter.getOption().longName()).isEqualTo(option);
+        assertThat(parameter.getArgument()).isEqualTo(argument);
+    }
+
     private static final class TestObject {
-        @Option(name = 'n')
+        @Option(name = 'n', longName = "name")
         String name;
 
-        @Option(name = 'c')
+        @Option(name = 'c', longName = "city")
         String city;
 
         @Option(name = 'v')

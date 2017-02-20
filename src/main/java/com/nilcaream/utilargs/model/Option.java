@@ -31,6 +31,8 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface Option {
 
-    char name();
+    char name() default 0;
+
+    String longName() default "";
 
 }

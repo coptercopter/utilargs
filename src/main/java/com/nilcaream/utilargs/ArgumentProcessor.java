@@ -35,7 +35,7 @@ public class ArgumentProcessor {
     private String[] arguments;
     private Object wrapper;
 
-    private Map<Character, Parameter> optionNameToParameter = new HashMap<>();
+    private Map<String, Parameter> optionNameToParameter = new HashMap<>();
     private List<ArgumentBinder> binders = new ArrayList<>();
     private int operandsIndex;
 
@@ -64,8 +64,11 @@ public class ArgumentProcessor {
         Field[] fields = wrapper.getClass().getDeclaredFields();
         for (Field field : fields) {
             Parameter parameter = createArgument(field);
-            if (parameter != null) {
-                optionNameToParameter.put(parameter.getOption().name(), parameter);
+            if (parameter != null && parameter.getOption().name() != 0) {
+                optionNameToParameter.put("-" + parameter.getOption().name(), parameter);
+            }
+            if (parameter != null && !"".equals(parameter.getOption().longName())) {
+                optionNameToParameter.put("--" + parameter.getOption().longName(), parameter);
             }
         }
     }
@@ -73,7 +76,7 @@ public class ArgumentProcessor {
     private Parameter createArgument(Field field) {
         Parameter parameter = null;
         Option option = field.getAnnotation(Option.class);
-        if (option != null) {
+        if (option != null && (option.name() != 0 || !" ".equals(option.longName()))) {
             parameter = new Parameter();
             parameter.setOption(option);
             parameter.setField(field);
@@ -92,8 +95,6 @@ public class ArgumentProcessor {
                 if (parameter != null) {
                     if (isBoolean(parameter)) {
                         parameter.setArgument("true");
-                    } else if (isOption(value) && !isNumber(value)) {
-                        parameter.setArgument("");
                     } else {
                         parameter.setArgument(value);
                         index += 1;
@@ -107,7 +108,7 @@ public class ArgumentProcessor {
                     }
                 } else if (isBooleanGroup(key)) {
                     for (char option : key.substring(1).toCharArray()) {
-                        parameter = optionNameToParameter.get(option);
+                        parameter = optionNameToParameter.get("-" + option);
                         parameter.setArgument("true");
                     }
 
@@ -129,13 +130,13 @@ public class ArgumentProcessor {
     private Parameter getParameterByKey(String key) {
         Parameter parameter = null;
         if (isOption(key)) {
-            parameter = optionNameToParameter.get(key.charAt(1));
+            parameter = optionNameToParameter.get(key);
         }
         return parameter;
     }
 
     private boolean isOption(String key) {
-        return key.length() == 2 && key.startsWith("-");
+        return key.startsWith("-") && !key.equals("--");
     }
 
     private String getNextArgument(int index) {
@@ -150,26 +151,16 @@ public class ArgumentProcessor {
         return parameter.getField().getType().getSimpleName().equalsIgnoreCase("boolean");
     }
 
-    private boolean isNumber(String value) {
-        boolean isNumber = true;
-        try {
-            Double.parseDouble(value);
-        } catch (Exception e) {
-            isNumber = false;
-        }
-        return isNumber;
-    }
-
     private boolean isEndOfOptionsDelimiter(int index) {
         return index < arguments.length && arguments[index].equals("--");
     }
 
     private boolean isBooleanGroup(String booleanGroup) {
         boolean isBooleanGroup = false;
-        if (booleanGroup.startsWith("-") && booleanGroup.length() > 2) {
+        if (booleanGroup.startsWith("-") && booleanGroup.length() > 2 && !booleanGroup.startsWith("--")) {
             isBooleanGroup = true;
             for (char option : booleanGroup.substring(1).toCharArray()) {
-                Parameter parameter = optionNameToParameter.get(option);
+                Parameter parameter = optionNameToParameter.get("-" + option);
                 if (parameter == null || !isBoolean(parameter)) {
                     isBooleanGroup = false;
                 }
@@ -225,7 +216,7 @@ public class ArgumentProcessor {
     public final List<Parameter> getParameters() {
         List<Parameter> parameters = new ArrayList<>();
         for (Parameter parameter : optionNameToParameter.values()) {
-            if (parameter.getArgument() != null) {
+            if (parameter.getArgument() != null && !parameters.contains(parameter)) {
                 parameters.add(parameter);
             }
         }
