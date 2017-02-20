@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 2013 Krzysztof Smigielski
+  ~ Copyright 2017 Krzysztof Smigielski
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -21,12 +21,12 @@
 
     <groupId>com.nilcaream.utilargs</groupId>
     <artifactId>util-args</artifactId>
-    <version>0.3-SNAPSHOT</version>
+    <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Util Args</name>
     <description>POSIX-style Java utility argument binder</description>
-    <url>http://code.google.com/p/utilargs</url>
+    <url>https://github.com/coptercopter/utilargs</url>
 
     <licenses>
         <license>
@@ -37,8 +37,8 @@
     </licenses>
 
     <scm>
-        <url>http://code.google.com/p/utilargs/source/browse</url>
-        <connection>scm:git:https://code.google.com/p/utilargs/</connection>
+        <url>https://github.com/coptercopter/utilargs</url>
+        <connection>scm:git:https://github.com/coptercopter/utilargs</connection>
         <tag>HEAD</tag>
     </scm>
 
@@ -58,7 +58,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.10</version>
+            <version>4.12</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -76,14 +76,14 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>2.3.2</version>
                 <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
-                <version>1.1.1</version>
+                <version>1.4.1</version>
                 <executions>
                     <execution>
                         <id>enforce-maven</id>
@@ -103,7 +103,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
-                <version>2.3.2</version>
+                <version>2.5.1</version>
                 <configuration>
                     <mavenExecutorId>forked-path</mavenExecutorId>
                     <tagNameFormat>v@{project.version}</tagNameFormat>
