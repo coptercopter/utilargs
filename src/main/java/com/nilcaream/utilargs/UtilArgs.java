@@ -19,6 +19,9 @@ package com.nilcaream.utilargs;
 import com.nilcaream.utilargs.core.StaticValueOfBinder;
 import com.nilcaream.utilargs.core.StringConstructorBinder;
 
+import java.io.IOException;
+import java.nio.file.Path;
+
 /**
  * Main, single-use, stateful class for processing command line arguments and automatic binding
  * to user-provided object. Uses predefined set of {@link com.nilcaream.utilargs.core.ArgumentBinder}
@@ -37,18 +40,36 @@ public class UtilArgs {
     private ArgumentProcessor processor = new ArgumentProcessor();
 
     /**
-     * Resolves given arguments and updates user-provided object fields. The object fields should be
-     * annotated with {@link com.nilcaream.utilargs.model.Option} annotation. They don't have to be public.
+     * This method is an equivalent of calling {@link UtilArgs#UtilArgs(String[], Object)} constructor.
      * <p/>
      * This method will never throw an exception when field binding process fails.
      * <p/>
-     * Calling this method is equivalent to calling constructor {@link UtilArgs#UtilArgs(String[], Object)}
      *
      * @param arguments command line arguments
-     * @param wrapper   user-provided arguments wrapper
+     * @param wrapper user-provided arguments wrapper
+     * @return associated {@link UtilArgs} instance
      */
-    public static void process(String[] arguments, Object wrapper) {
-        new UtilArgs(arguments, wrapper);
+    public static UtilArgs process(String[] arguments, Object wrapper) {
+        return new UtilArgs(arguments, wrapper);
+    }
+
+    /**
+     * Reads provided path as a properties file (in key=value format) and transforms it into command-line-like
+     * arguments. Options are generated in long format (e.g. --name) based on keys in file. Lines that are not in
+     * key=value format are ignored. Generated arguments are processed as an equivalent of calling
+     * {@link UtilArgs#UtilArgs(String[], Object)} constructor.
+     * <p/>
+     * It is not possible to provide an operand by calling this method.
+     * <p/>
+     * This method will never throw an exception when field binding process fails.
+     *
+     * @param path path to properties file
+     * @param wrapper user-provided arguments wrapper
+     * @return associated {@link UtilArgs} instance
+     * @throws IOException if any I/O errors occurs during file read
+     */
+    public static UtilArgs process(Path path, Object wrapper) throws IOException {
+        return new UtilArgs(new PropertiesProcessor().process(path), wrapper);
     }
 
     /**
